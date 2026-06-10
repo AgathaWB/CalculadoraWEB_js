@@ -1,174 +1,301 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora Científica</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial;
-}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial;
+        }
 
-body{
-    background:#8494FF;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
+        body {
+            background: #8494FF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-.calculadora{
-    background:#C9BEFF;
-    padding:20px;
-    border-radius:20px;
-    width:350px;
-    box-shadow:0 0 900px rgba(0,0,0,0.5);
-}
+        .calculadora {
+            background: #C9BEFF;
+            padding: 20px;
+            border-radius: 20px;
+            width: 380px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        }
 
-h1{
-    text-align:center;
-    color:#792CA2;
-    margin-bottom:15px;
-}
+        h1 {
+            text-align: center;
+            color: #792CA2;
+            margin-bottom: 15px;
+        }
 
-#display{
-    width:100%;
-    height:60px;
-    font-size:24px;
-    text-align:right;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    margin-bottom:15px;
-    background:#eeead7;
-    color:rgb(179, 42, 221);
-}
+        #display {
+            width: 100%;
+            height: 60px;
+            font-size: 24px;
+            text-align: right;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: #eeead7;
+            color: rgb(179, 42, 221);
+        }
 
-.botoes{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-}
+        /* Display de fração */
+        #display-fracao {
+            text-align: center;
+            font-size: 18px;
+            color: #792CA2;
+            min-height: 28px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
 
-button{
-    height:60px;
-    border:none;
-    border-radius:12px;
-    font-size:20px;
-    cursor:pointer;
-    transition:0.2s;
-}
+        .fracao-visual {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+        }
 
-button:hover{
-    transform:scale(1.05);
-}
+        .fracao-visual span.linha-fracao {
+            display: block;
+            width: 100%;
+            border-top: 2px solid #792CA2;
+            margin: 2px 0;
+        }
 
-.numero{
-    background:#9FA1FF;
-    color:white;
-}
+        .botoes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
 
-.operador{
-    background:#0f99e4;
-    color:white;
-}
+        button {
+            height: 55px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-.especial{
-    background:#7c3aed;
-    color:white;
-}
+        button:hover {
+            transform: scale(1.05);
+        }
 
-.igual{
-    background:#3f964f;
-    color:white;
-}
+        .numero {
+            background: #9FA1FF;
+            color: white;
+        }
 
-.limpar{
-    background:#b80e0e;
-    color:white;
-}
-</style>
+        .operador {
+            background: #0f99e4;
+            color: white;
+        }
+
+        .especial {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .trig {
+            background: #b8398a;
+            color: white;
+        }
+
+        .igual {
+            background: #3f964f;
+            color: white;
+        }
+
+        .limpar {
+            background: #b80e0e;
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="calculadora">
-    <h1>Calculadora</h1>
+    <div class="calculadora">
+        <h1>Calculadora</h1>
 
-    <input type="text" id="display" readonly>
+        <input type="text" id="display" readonly spellcheck="false">
 
-    <div class="botoes">
-        <button class="limpar" onclick="limpar()">C</button>
-        <button class="especial" onclick="adicionar('sqrt')">√</button>
-        <button class="especial" onclick="adicionar('log')">log</button>
-        <button class="operador" onclick="adicionar('/')">÷</button>
+        <!-- Resultado em fração -->
+        <div id="display-fracao"></div>
 
-        <button class="numero" onclick="adicionar('7')">7</button>
-        <button class="numero" onclick="adicionar('8')">8</button>
-        <button class="numero" onclick="adicionar('9')">9</button>
-        <button class="operador" onclick="adicionar('*')">×</button>
+        <div class="botoes">
+            <!-- Linha 1 -->
+            <button class="limpar" onclick="limpar()">C</button>
+            <button class="especial" onclick="adicionar('sqrt(')">√</button>
+            <button class="especial" onclick="adicionar('log(')">log</button>
+            <button class="operador" onclick="adicionar('/')">÷</button>
 
-        <button class="numero" onclick="adicionar('4')">4</button>
-        <button class="numero" onclick="adicionar('5')">5</button>
-        <button class="numero" onclick="adicionar('6')">6</button>
-        <button class="operador" onclick="adicionar('-')">−</button>
+            <!-- Linha 2 -->
+            <button class="numero" onclick="adicionar('7')">7</button>
+            <button class="numero" onclick="adicionar('8')">8</button>
+            <button class="numero" onclick="adicionar('9')">9</button>
+            <button class="operador" onclick="adicionar('*')">×</button>
 
-        <button class="numero" onclick="adicionar('1')">1</button>
-        <button class="numero" onclick="adicionar('2')">2</button>
-        <button class="numero" onclick="adicionar('3')">3</button>
-        <button class="operador" onclick="adicionar('+')">+</button>
+            <!-- Linha 3 -->
+            <button class="numero" onclick="adicionar('4')">4</button>
+            <button class="numero" onclick="adicionar('5')">5</button>
+            <button class="numero" onclick="adicionar('6')">6</button>
+            <button class="operador" onclick="adicionar('-')">−</button>
 
-        <button class="numero" onclick="adicionar('0')">0</button>
-        <button class="numero" onclick="adicionar('.')">.</button>
-        <button class="especial" onclick="adicionar('%')">%</button>
-        <button class="igual" onclick="calcular()">=</button>
+            <!-- Linha 4 -->
+            <button class="numero" onclick="adicionar('1')">1</button>
+            <button class="numero" onclick="adicionar('2')">2</button>
+            <button class="numero" onclick="adicionar('3')">3</button>
+            <button class="operador" onclick="adicionar('+')">+</button>
 
-        <button class="especial" onclick="adicionar('^')">xʸ</button>
-        <button class="especial" onclick="adicionar('(')">(</button>
-        <button class="especial" onclick="adicionar(')')">)</button>
+            <!-- Linha 5 -->
+            <button class="numero" onclick="adicionar('0')">0</button>
+            <button class="numero" onclick="adicionar('.')">.</button>
+            <button class="especial" onclick="adicionar('%')">%</button>
+            <button class="igual" onclick="calcular()">=</button>
+
+            <!-- Linha 6 -->
+            <button class="especial" onclick="adicionar('^')">xʸ</button>
+            <button class="especial" onclick="adicionar('(')">(</button>
+            <button class="especial" onclick="adicionar(')')">)</button>
+            <button class="especial" onclick="fracao()">a/b</button>
+
+            <!-- Linha 7: Trig -->
+            <button class="trig" onclick="inserirTrig('sin')">sin</button>
+            <button class="trig" onclick="inserirTrig('cos')">cos</button>
+            <button class="trig" onclick="inserirTrig('tan')">tan</button>
+
+        </div>
     </div>
-</div>
 
-<script>
-const display = document.getElementById("display");
+    <script>
+        const display = document.getElementById("display");
+        const displayFracao = document.getElementById("display-fracao");
 
-function adicionar(valor){
-    display.value += valor;
-}
+        function limparFracao() {
+            displayFracao.innerHTML = '';
+        }
 
-function limpar(){
-    display.value = "";
-}
+        function adicionar(valor) {
+            display.value += valor;
+            limparFracao();
+        }
 
-function calcular(){
-    try{
-        display.value = math.evaluate(display.value);
-    }catch(error){
-        display.value = "Erro";
-    }
-}
+        function limpar() {
+            display.value = "";
+            limparFracao();
+        }
 
-document.addEventListener("keydown", (e)=>{
-    if(
-        "0123456789+-*/.^()%".includes(e.key)
-    ){
-        display.value += e.key;
-    }
+        // Insere função trigonométrica já com parêntese
+        function inserirTrig(fn) {
+            adicionar(fn + '(');
+        }
 
-    if(e.key === "Enter"){
-        calcular();
-    }
+        // Converte graus → radianos antes de calcular trig
+        function prepararExpressao(expr) {
+            expr = expr.replace(/\b(sin|cos|tan)\(([^()]*)\)/g, (_, fn, arg) => {
+                return `${fn}((${arg}) * pi / 180)`;
+            });
 
-    if(e.key === "Escape"){
-        limpar();
-    }
-});
-</script>
+            expr = expr.replace(/\b(asin|acos|atan)\(([^()]*)\)/g, (_, fn, arg) => {
+                return `(${fn}(${arg}) * 180 / pi)`;
+            });
+
+            return expr;
+        }
+
+        function calcular() {
+            try {
+                const expr = display.value;
+                const exprPrep = prepararExpressao(expr);
+                const resultado = math.evaluate(exprPrep);
+
+                display.value = Number(resultado.toPrecision(12));
+                mostrarFracao(resultado);
+
+            } catch (error) {
+                display.value = "Erro";
+                limparFracao();
+            }
+        }
+
+        // Tenta representar o resultado como fração simples
+        function mostrarFracao(valor) {
+
+            if (!Number.isFinite(valor)) return;
+
+            if (Number.isInteger(valor)) {
+                limparFracao();
+                return;
+            }
+
+            try {
+                const frac = math.fraction(valor);
+
+                if (frac.d !== 1n && frac.d <= 1000n) {
+
+                    const sinal = frac.s < 0 ? '−' : '';
+
+                    displayFracao.innerHTML =
+                        `${sinal}<span class="fracao-visual">` +
+                        `<span>${frac.n}</span>` +
+                        `<span class="linha-fracao"></span>` +
+                        `<span>${frac.d}</span>` +
+                        `</span>`;
+
+                } else {
+                    limparFracao();
+                }
+
+            } catch (e) {
+                limparFracao();
+            }
+        }
+
+        function fracao() {
+            adicionar('/');
+        }
+
+        document.addEventListener("keydown", (e) => {
+
+            if ("0123456789+-*/.^()%".includes(e.key)) {
+                adicionar(e.key);
+            }
+
+            if (e.key === "Enter") {
+                calcular();
+            }
+
+            if (e.key === "Escape") {
+                limpar();
+            }
+
+            if (e.key === "Backspace") {
+                display.value = display.value.slice(0, -1);
+                limparFracao();
+            }
+        });
+    </script>
 
 </body>
+
 </html>
